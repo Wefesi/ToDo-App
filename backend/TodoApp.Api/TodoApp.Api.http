@@ -1,4 +1,7 @@
 @host = http://localhost:5056
+# Set HttpsRedirection:Enabled to true and use https://localhost:7191 when
+# testing local HTTPS. Keep it false for HTTP, Docker, and Kubernetes unless
+# TLS is terminated before the API.
 
 ### ToDo contract
 # ToDo response shape:
@@ -32,7 +35,7 @@
 #   "title": "One or more validation errors occurred.",
 #   "status": 400,
 #   "errors": {
-#     "Title": ["Title must not be empty or whitespace."]
+#     "Title": ["The Title field is required."]
 #   }
 # }
 # The standard Problem Details metadata fields may include an additional
