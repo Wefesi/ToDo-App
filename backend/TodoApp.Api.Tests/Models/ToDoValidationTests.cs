@@ -69,6 +69,29 @@ public class ToDoValidationTests
         Assert.Contains(errors, error => error.MemberNames.Contains(nameof(UpdateToDoRequest.Title)));
     }
 
+    [Theory]
+    [InlineData("")]
+    [InlineData("   ")]
+    [InlineData("\t\n")]
+    public void Update_request_rejects_an_empty_or_whitespace_title(string title)
+    {
+        var request = new UpdateToDoRequest { Title = title };
+
+        var errors = Validate(request);
+
+        Assert.Contains(errors, error => error.MemberNames.Contains(nameof(UpdateToDoRequest.Title)));
+    }
+
+    [Fact]
+    public void Create_request_rejects_a_title_longer_than_200_characters()
+    {
+        var request = new CreateToDoRequest { Title = new string('a', 201) };
+
+        var errors = Validate(request);
+
+        Assert.Contains(errors, error => error.MemberNames.Contains(nameof(CreateToDoRequest.Title)));
+    }
+
     private static IReadOnlyList<ValidationResult> Validate(object model)
     {
         var context = new ValidationContext(model);

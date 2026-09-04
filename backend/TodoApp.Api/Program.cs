@@ -87,3 +87,5 @@ app.MapDelete("/api/todos/{id:int}", (int id, IToDoService todoService) =>
 app.MapGet("/health", () => Results.Ok(new { status = "ok" }));
 
 app.Run();
+
+public partial class Program;
