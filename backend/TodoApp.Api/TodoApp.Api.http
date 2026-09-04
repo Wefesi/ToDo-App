@@ -26,7 +26,7 @@
 #
 # Validation rules:
 # - id is a server-generated integer.
-# - title is required, must not be blank, and must be at most 200 characters.
+# - title is required, must not be blank, and must be at most 70 characters.
 # - isCompleted is a Boolean.
 #
 # Validation error response shape (400):

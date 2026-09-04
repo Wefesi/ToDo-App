@@ -199,6 +199,17 @@ Query and supports every user story.
 - Implement the user stories in this order: view, create, edit, delete.
 - Display loading, empty, error, and mutation feedback states.
 - Disable controls while an operation is pending where appropriate.
+- During create, edit, and delete requests, disable the relevant submit or
+  action control so the user cannot accidentally submit the same mutation
+  repeatedly.
+- Show a visible loading indicator or pending label while each mutation is in
+  progress.
+- Show a visible success confirmation after a create, edit, or delete succeeds.
+- Show a visible error message when a mutation fails, preserving the current
+  list and entered form values where possible.
+- Refresh or update the visible ToDo list after every successful mutation by
+  invalidating or directly updating the `todos` query cache.
+- Do not show a success confirmation for a failed or cancelled mutation.
 - Confirm the layout works on narrow mobile screens and desktop screens.
 
 ### Acceptance criteria
@@ -208,6 +219,13 @@ Query and supports every user story.
 - A user can edit a ToDo and see the changed values.
 - A user can delete a ToDo and see it removed.
 - API failures are visible and do not silently lose the current list.
+- Create, edit, and delete controls are disabled while their requests are
+  pending.
+- Pending mutations have visible loading feedback.
+- Successful mutations have visible success feedback.
+- Failed mutations have visible error feedback and do not silently discard
+  current data or form input.
+- The list updates without a full-page reload after every successful mutation.
 - The frontend does not use a Kubernetes-only hostname during local development.
 
 ### Verification

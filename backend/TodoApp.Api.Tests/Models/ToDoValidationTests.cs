@@ -37,9 +37,9 @@ public class ToDoValidationTests
     }
 
     [Fact]
-    public void Title_is_invalid_when_it_exceeds_200_characters()
+    public void Title_is_invalid_when_it_exceeds_70_characters()
     {
-        var todo = new ToDo { Title = new string('a', 201) };
+        var todo = new ToDo { Title = new string('a', 71) };
 
         var errors = Validate(todo);
 
@@ -60,9 +60,9 @@ public class ToDoValidationTests
     }
 
     [Fact]
-    public void Update_request_rejects_a_title_longer_than_200_characters()
+    public void Update_request_rejects_a_title_longer_than_70_characters()
     {
-        var request = new UpdateToDoRequest { Title = new string('a', 201) };
+        var request = new UpdateToDoRequest { Title = new string('a', 71) };
 
         var errors = Validate(request);
 
@@ -83,9 +83,9 @@ public class ToDoValidationTests
     }
 
     [Fact]
-    public void Create_request_rejects_a_title_longer_than_200_characters()
+    public void Create_request_rejects_a_title_longer_than_70_characters()
     {
-        var request = new CreateToDoRequest { Title = new string('a', 201) };
+        var request = new CreateToDoRequest { Title = new string('a', 71) };
 
         var errors = Validate(request);
 

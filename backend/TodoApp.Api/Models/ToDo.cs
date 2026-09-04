@@ -7,7 +7,7 @@ public class ToDo : IValidatableObject
     public int Id { get; set; }
 
     [Required]
-    [StringLength(200)]
+    [StringLength(70)]
     public string Title { get; set; } = string.Empty;
 
     public bool IsCompleted { get; set; } = false;
