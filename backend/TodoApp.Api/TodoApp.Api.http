@@ -1,6 +1,157 @@
-@TodoApp.Api_HostAddress = http://localhost:5056
+@host = http://localhost:5056
 
-GET {{TodoApp.Api_HostAddress}}/weatherforecast/
+### ToDo contract
+# ToDo response shape:
+# {
+#   "id": 1,
+#   "title": "Learn Kubernetes",
+#   "isCompleted": false
+# }
+#
+# Create request shape:
+# {
+#   "title": "Learn Kubernetes",
+#   "isCompleted": false
+# }
+# isCompleted is optional for POST and defaults to false when omitted.
+#
+# Update request shape:
+# {
+#   "title": "Learn Kubernetes locally",
+#   "isCompleted": true
+# }
+#
+# Validation rules:
+# - id is a server-generated integer.
+# - title is required, must not be blank, and must be at most 200 characters.
+# - isCompleted is a Boolean.
+#
+# Validation error response shape (400):
+# {
+#   "type": "https://tools.ietf.org/html/rfc9110#section-15.5.1",
+#   "title": "One or more validation errors occurred.",
+#   "status": 400,
+#   "errors": {
+#     "Title": ["Title must not be empty or whitespace."]
+#   }
+# }
+# The standard Problem Details metadata fields may include an additional
+# traceId. The errors object contains the invalid property name and messages.
+# Other validation errors use the same shape and status code.
+#
+# Missing resource response (404):
+# - The response has status 404 and no required response body.
+
+### List all ToDos
+# Expected response: 200 with this JSON array shape:
+# [
+#   {
+#     "id": 1,
+#     "title": "Learn Kubernetes",
+#     "isCompleted": false
+#   }
+# ]
+GET {{host}}/api/todos
 Accept: application/json
 
 ###
+
+### Create a ToDo
+# Request body shape:
+# {
+#   "title": "Learn Kubernetes"
+# }
+# Expected response: 201, a Location header containing /api/todos/{id}, and
+# this JSON response body shape:
+# {
+#   "id": 1,
+#   "title": "Learn Kubernetes",
+#   "isCompleted": false
+# }
+POST {{host}}/api/todos
+Content-Type: application/json
+
+{
+  "title": "Learn Kubernetes"
+}
+
+###
+
+### Create a completed ToDo
+# Request body shape includes the optional completion state.
+POST {{host}}/api/todos
+Content-Type: application/json
+
+{
+  "title": "Set up the project repository",
+  "isCompleted": true
+}
+
+###
+
+### Invalid create request
+# Expected response: 400 with the documented validation error response shape.
+POST {{host}}/api/todos
+Content-Type: application/json
+
+{
+  "title": "   "
+}
+
+###
+
+### Update a ToDo
+# Request body shape:
+# {
+#   "title": "Learn Kubernetes locally",
+#   "isCompleted": true
+# }
+# Expected response: 200 with this JSON response body shape:
+# {
+#   "id": 1,
+#   "title": "Learn Kubernetes locally",
+#   "isCompleted": true
+# }
+PUT {{host}}/api/todos/1
+Content-Type: application/json
+
+{
+  "title": "Learn Kubernetes locally",
+  "isCompleted": true
+}
+
+###
+
+### Update an unknown ToDo
+# Expected response: 404 with no required response body because ToDo 999 does
+# not exist.
+PUT {{host}}/api/todos/999
+Content-Type: application/json
+
+{
+  "title": "This ToDo does not exist",
+  "isCompleted": false
+}
+
+###
+
+### Delete a ToDo
+# Expected response: 204 with no response body and no response JSON.
+DELETE {{host}}/api/todos/1
+
+###
+
+### Delete an unknown ToDo
+# Expected response: 404 with no required response body because ToDo 999 does
+# not exist.
+DELETE {{host}}/api/todos/999
+
+###
+
+### Health check
+# Expected response: 200 with this JSON response body shape:
+# {
+#   "status": "ok"
+# }
+GET {{host}}/health
+Accept: application/json

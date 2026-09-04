@@ -1,8 +1,13 @@
+using System.ComponentModel.DataAnnotations;
+using TodoApp.Api.Models;
+using TodoApp.Api.Services;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
+builder.Services.AddSingleton<IToDoService, ToDoService>();
 
 var app = builder.Build();
 
@@ -14,28 +19,54 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-var summaries = new[]
-{
-    "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-};
+app.MapGet("/api/todos", (IToDoService todoService) =>
+    Results.Ok(todoService.GetAll()));
 
-app.MapGet("/weatherforecast", () =>
+app.MapPost("/api/todos", (CreateToDoRequest request, IToDoService todoService) =>
 {
-    var forecast =  Enumerable.Range(1, 5).Select(index =>
-        new WeatherForecast
-        (
-            DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-            Random.Shared.Next(-20, 55),
-            summaries[Random.Shared.Next(summaries.Length)]
-        ))
-        .ToArray();
-    return forecast;
-})
-.WithName("GetWeatherForecast");
+    var validationContext = new ValidationContext(request);
+    var validationErrors = new List<ValidationResult>();
+
+    if (!Validator.TryValidateObject(request, validationContext, validationErrors, true))
+    {
+        return Results.ValidationProblem(
+            validationErrors
+                .SelectMany(error => error.MemberNames.DefaultIfEmpty(string.Empty),
+                    (error, memberName) => new { memberName, error.ErrorMessage })
+                .GroupBy(error => error.memberName)
+                .ToDictionary(
+                    group => group.Key,
+                    group => group.Select(error => error.ErrorMessage ?? "Invalid value.").ToArray()));
+    }
+
+    var todo = todoService.Create(request.Title, request.IsCompleted);
+    return Results.Created($"/api/todos/{todo.Id}", todo);
+});
+
+app.MapPut("/api/todos/{id:int}", (int id, UpdateToDoRequest request, IToDoService todoService) =>
+{
+    var validationContext = new ValidationContext(request);
+    var validationErrors = new List<ValidationResult>();
+
+    if (!Validator.TryValidateObject(request, validationContext, validationErrors, true))
+    {
+        return Results.ValidationProblem(
+            validationErrors
+                .SelectMany(error => error.MemberNames.DefaultIfEmpty(string.Empty),
+                    (error, memberName) => new { memberName, error.ErrorMessage })
+                .GroupBy(error => error.memberName)
+                .ToDictionary(
+                    group => group.Key,
+                    group => group.Select(error => error.ErrorMessage ?? "Invalid value.").ToArray()));
+    }
+
+    var todo = todoService.Update(id, request.Title, request.IsCompleted);
+    return todo is null ? Results.NotFound() : Results.Ok(todo);
+});
+
+app.MapDelete("/api/todos/{id:int}", (int id, IToDoService todoService) =>
+    todoService.Delete(id) ? Results.NoContent() : Results.NotFound());
+
+app.MapGet("/health", () => Results.Ok(new { status = "ok" }));
 
 app.Run();
-
-record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
-{
-    public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
-}
