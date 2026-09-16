@@ -36,6 +36,9 @@ if (app.Environment.IsDevelopment())
     app.UseCors("DevelopmentFrontend");
 }
 
+app.UseDefaultFiles();
+app.UseStaticFiles();
+
 app.MapGet("/api/todos", (IToDoService todoService) =>
     Results.Ok(todoService.GetAll()));
 
@@ -85,6 +88,8 @@ app.MapDelete("/api/todos/{id:int}", (int id, IToDoService todoService) =>
     todoService.Delete(id) ? Results.NoContent() : Results.NotFound());
 
 app.MapGet("/health", () => Results.Ok(new { status = "ok" }));
+
+app.MapFallbackToFile("index.html");
 
 app.Run();
 
